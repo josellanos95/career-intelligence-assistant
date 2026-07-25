@@ -5,7 +5,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
-app = FastAPI(title="Career Intelligence Assistant")
+app = FastAPI(title="FitScope", description="Career Intelligence Assistant")
 app.include_router(documents.router)
 app.include_router(chat.router)
 app.include_router(ui.router)

@@ -3,9 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Career Intelligence Assistant</title>
+  <title>FitScope — Career Intelligence Assistant</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E" />
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Tailwind's CDN build doesn't know about htmx's convention classes --
+       hidden by default, shown only while the request that references them
+       (via hx-indicator) is in flight. */
+    .htmx-indicator { display: none; }
+    .htmx-request.htmx-indicator { display: flex; }
+  </style>
 </head>
 <body class="h-full bg-slate-50 text-slate-900">
   <div class="max-w-5xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -17,7 +25,8 @@
               hx-encoding="multipart/form-data" hx-on::after-request="this.reset()" class="space-y-2">
           <input type="hidden" name="doc_type" value="resume" />
           <input type="file" name="file" required class="block w-full text-sm" accept=".pdf,.docx,.txt" />
-          <button class="w-full bg-slate-900 text-white rounded-lg py-2 text-sm font-medium">Upload resume</button>
+          <p class="text-xs text-slate-400">PDF, DOCX, or TXT</p>
+          <button class="w-full bg-slate-900 hover:bg-slate-700 transition-colors text-white rounded-lg py-2 text-sm font-medium">Upload resume</button>
         </form>
       </div>
 
@@ -29,7 +38,8 @@
           <input type="text" name="title" placeholder="Job title (optional)"
                  class="block w-full text-sm border border-slate-300 rounded-lg px-2 py-1.5" />
           <input type="file" name="file" required class="block w-full text-sm" accept=".pdf,.docx,.txt" />
-          <button class="w-full bg-slate-900 text-white rounded-lg py-2 text-sm font-medium">Add job</button>
+          <p class="text-xs text-slate-400">Add as many as you want to compare against</p>
+          <button class="w-full bg-slate-900 hover:bg-slate-700 transition-colors text-white rounded-lg py-2 text-sm font-medium">Add job</button>
         </form>
       </div>
 
@@ -39,33 +49,82 @@
     </section>
 
     <section class="md:col-span-2 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 h-[80vh]">
-      <div class="p-4 border-b border-slate-200">
-        <h1 class="font-bold text-xl">Career Intelligence Assistant</h1>
-        <p class="text-sm text-slate-500">Ask about your fit, skill gaps, or interview prep for any uploaded job.</p>
+      <div class="p-4 border-b border-slate-200 flex items-center gap-3">
+        <div class="text-2xl leading-none">🎯</div>
+        <div>
+          <h1 class="font-bold text-xl leading-tight">FitScope</h1>
+          <p class="text-sm text-slate-500">Career Intelligence Assistant — ask about your fit, skill gaps, or interview prep.</p>
+        </div>
       </div>
 
-      <div id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+      <div id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div id="chat-empty-state" class="h-full flex flex-col items-center justify-center text-center gap-3 px-6">
+          <div class="text-4xl">🎯</div>
+          <p class="text-sm text-slate-400 max-w-sm">Upload your resume and a job description on the left, then ask
+            about your fit. Not sure where to start? Try one of these:</p>
+          <div class="flex flex-wrap gap-2 justify-center max-w-md">
+            <button type="button" onclick="fillQuestion(this)" data-q="What are my strongest technical skills?"
+                    class="text-xs px-3 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 transition-colors">
+              What are my strongest skills?
+            </button>
+            <button type="button" onclick="fillQuestion(this)" data-q="What skills am I missing for this role?"
+                    class="text-xs px-3 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 transition-colors">
+              What am I missing for this role?
+            </button>
+            <button type="button" onclick="fillQuestion(this)" data-q="Prepare me for an interview for this role."
+                    class="text-xs px-3 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-slate-600 transition-colors">
+              Prep me for an interview
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <form hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend" hx-on::after-request="this.reset()"
+      <div id="typing-indicator" class="htmx-indicator items-center gap-2 px-4 py-2 text-xs text-slate-400 border-t border-slate-100">
+        <span class="flex gap-1">
+          <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:0ms"></span>
+          <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:150ms"></span>
+          <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:300ms"></span>
+        </span>
+        FitScope is thinking...
+      </div>
+
+      <form hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend"
+            hx-indicator="#typing-indicator" hx-disabled-elt="find button"
+            hx-on::before-request="document.getElementById('chat-empty-state')?.remove()"
+            hx-on::after-request="this.reset()"
             class="p-4 border-t border-slate-200 space-y-2">
         <div class="flex gap-2">
-          <select name="mode" class="border border-slate-300 rounded-lg text-sm px-2">
-            <option value="general">General Q&amp;A</option>
-            <option value="skill_gap">Skill-gap analysis</option>
-            <option value="interview_prep">Interview prep</option>
-          </select>
-          {% include "_doc_select.html" %}
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Mode</label>
+            <select name="mode" class="w-full border border-slate-300 rounded-lg text-sm px-2 py-1.5">
+              <option value="general">General Q&amp;A</option>
+              <option value="skill_gap">Skill-gap analysis</option>
+              <option value="interview_prep">Interview prep</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Focus on job</label>
+            {% include "_doc_select.html" %}
+          </div>
         </div>
         <div class="flex gap-2">
           <input type="text" name="question" required placeholder="e.g. What skills am I missing for this role?"
                  class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm" />
-          <button class="bg-slate-900 text-white rounded-lg px-4 py-2 text-sm font-medium">Send</button>
+          <button class="bg-slate-900 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-white rounded-lg px-4 py-2 text-sm font-medium">
+            Send
+          </button>
         </div>
       </form>
     </section>
   </div>
 
   <script>
+    function fillQuestion(button) {
+      const input = document.querySelector('input[name="question"]');
+      input.value = button.dataset.q;
+      input.focus();
+    }
+
     document.body.addEventListener('htmx:afterSwap', () => {
       const log = document.getElementById('chat-log');
       if (log) log.scrollTop = log.scrollHeight;
