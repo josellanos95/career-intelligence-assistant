@@ -12,7 +12,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    llm_provider: Literal["claude", "openai"] = "claude"
+    # Matches the documented default in .env.example: "openai" so the app
+    # works out of the box with a single API key (OpenAI is already required
+    # for embeddings regardless of chat provider).
+    llm_provider: Literal["claude", "openai"] = "openai"
 
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-5-20250929"
