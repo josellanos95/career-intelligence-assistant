@@ -40,3 +40,9 @@ class Chunk:
 class ScoredChunk:
     chunk: Chunk
     score: float
+
+
+@dataclass(frozen=True)
+class ChatMessage:
+    role: str  # "user" or "assistant"
+    content: str
