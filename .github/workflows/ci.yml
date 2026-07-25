@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check app tests evals
+
+      # Unit and integration tests run against fake embedder/LLM doubles
+      # (see tests/unit/test_chat_service.py, tests/integration/test_api.py)
+      # -- no API keys needed here. Real-LLM eval runs (evals/run_evals.py)
+      # are a separate, manual step: see README.md.
+      - name: Run tests
+        run: pytest
