@@ -25,6 +25,7 @@ def test_claude_provider_parses_response_and_forwards_arguments():
     fake_client.messages.create.assert_called_once_with(
         model="claude-test",
         max_tokens=1024,
+        temperature=0.2,
         system="system prompt",
         messages=[{"role": "user", "content": "hi"}],
     )
@@ -65,6 +66,7 @@ def test_openai_provider_parses_response_and_prepends_system_message():
     fake_client.chat.completions.create.assert_called_once_with(
         model="gpt-test",
         max_tokens=1024,
+        temperature=0.2,
         messages=[
             {"role": "system", "content": "system prompt"},
             {"role": "user", "content": "hi"},
