@@ -1,0 +1,37 @@
+AI Platform Engineer
+HealthForward Analytics -- Remote (US)
+
+About HealthForward Analytics
+HealthForward Analytics builds AI-assisted tools that help clinical operations teams at mid-size hospital
+networks make sense of unstructured documents -- intake forms, discharge summaries, and internal policy
+PDFs. We are a 40-person Series B company selling directly to hospital IT departments.
+
+The Role
+We are hiring an AI Platform Engineer to own the retrieval and orchestration layer behind our internal
+assistant product. You will work closely with a clinical operations lead who has a running list of
+document types the assistant still handles poorly, and you are expected to turn that into shipped
+improvements weekly, not quarterly.
+
+Responsibilities
+- Build and maintain RAG pipelines (chunking, embeddings, retrieval, prompt assembly) that answer
+  questions grounded strictly in uploaded hospital documents.
+- Design and operate multi-step agentic workflows using LangGraph or a comparable orchestration
+  framework, wiring tools such as document search, structured extraction, and human hand-off.
+- Deploy and operate services in containers on Kubernetes, including basic autoscaling and rollout
+  configuration.
+- Add guardrails against hallucination and instrument the pipeline so a non-engineer can see why the
+  assistant gave a particular answer.
+- Partner with the clinical operations lead directly -- there is no product manager on this team, so you
+  are expected to turn ambiguous complaints ("it missed the discharge date again") into concrete fixes.
+
+Requirements
+- 3+ years building production backend systems in Python.
+- Hands-on experience with retrieval-augmented generation: chunking strategy, an embedding model, and a
+  vector store, in a real shipped product (not a tutorial project).
+- Experience with Docker and container orchestration (Kubernetes or ECS) in production.
+- Comfortable owning a service end-to-end, including incident response when it breaks.
+
+Nice to Have
+- Experience with agent frameworks (LangGraph, AutoGen, or a custom multi-step tool-calling orchestrator).
+- Prior healthcare or life-sciences domain exposure.
+- Experience with structured logging, tracing, or eval harnesses for LLM-based systems.

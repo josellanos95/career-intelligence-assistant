@@ -1,0 +1,32 @@
+Senior Backend Engineer
+LedgerPeak -- Remote (US/Canada)
+
+About LedgerPeak
+LedgerPeak provides reconciliation and settlement infrastructure for mid-market payment processors. Our
+platform processes several million transactions a day across a set of event-driven microservices.
+
+The Role
+We are looking for a Senior Backend Engineer to help us scale our reconciliation pipeline as transaction
+volume grows. This is a hands-on, individual-contributor role with no direct reports.
+
+Responsibilities
+- Design and build backend services in Python, following our existing microservice conventions
+  (clean architecture, clear service boundaries, contract-tested APIs).
+- Build and extend event-driven pipelines on Kafka for real-time transaction reconciliation.
+- Work across relational (PostgreSQL) and document (MongoDB) stores depending on the access pattern.
+- Participate in an on-call rotation for the services you own.
+- Write and maintain automated tests as a first-class part of feature work, and keep CI green.
+
+Requirements
+- 4+ years of professional backend engineering experience, with strong Python (or Java/Kotlin).
+- Experience designing REST or event-driven APIs in a microservice architecture.
+- Experience with at least one message broker or event streaming platform (Kafka, SQS, or similar).
+- Solid SQL skills and experience with relational database schema design.
+- Experience with Docker; Kubernetes experience is a plus but not required, since our services currently
+  run on ECS.
+- Comfortable working in a codebase with an existing automated test suite and CI pipeline (GitHub Actions).
+
+Nice to Have
+- Experience with financial systems, ledgers, or reconciliation logic specifically.
+- Java or Kotlin experience alongside Python.
+- Experience mentoring other engineers on system design.

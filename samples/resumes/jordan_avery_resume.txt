@@ -1,0 +1,45 @@
+Jordan Avery
+Backend & AI Engineer
+jordan.avery.dev@example.com | +1 (555) 019-2231 | Denver, CO
+github.com/jordanavery-dev | linkedin.com/in/jordanavery-dev
+
+Professional Summary
+Backend engineer with 4 years of experience building production APIs and, for the last year and a half,
+retrieval-augmented generation (RAG) systems on top of them. Comfortable owning a service from database
+schema to deployed container. Most recent focus has been wiring LLM providers (OpenAI, Anthropic) into
+existing Python backends without turning the codebase into a pile of provider-specific glue code.
+
+Experience
+Backend Engineer, Lumen Health Records (remote) -- Mar 2024 to Present
+- Designed and shipped a document Q&A service used internally by support staff to answer questions about
+  patient intake PDFs, built on FastAPI, pgvector, and OpenAI embeddings.
+- Replaced a naive fixed-size chunking pipeline with a section-aware chunker after noticing retrieval
+  quality dropped sharply on multi-page forms; precision on an internal 40-question test set went from
+  61% to 84%.
+- Wrote the prompt and guardrail layer that stops the assistant from answering questions unrelated to the
+  uploaded documents, after an early demo where it happily answered general medical questions with no
+  grounding at all.
+- Containerized the service with Docker and deployed it on a single EC2 instance behind an ALB; no
+  orchestration layer (no Kubernetes, no ECS) was in place by the time this engagement ended.
+
+Software Engineer, Northgate Payments -- Jul 2021 to Feb 2024
+- Built and maintained REST APIs in Python (Flask, later migrated to FastAPI) for a payment reconciliation
+  product used by ~30 internal finance analysts.
+- Owned the migration from a monolithic Flask app to three separately deployable services, applying basic
+  domain-driven boundaries (ledger, reconciliation, reporting).
+- Wrote unit and integration tests with pytest as part of day-to-day work, not as a separate initiative;
+  the team did not practice strict TDD (tests were usually written alongside or shortly after the code).
+- Used GitHub Actions to run the test suite on every pull request; did not own the deployment pipeline
+  itself, which was managed by a separate platform team using Jenkins.
+
+Skills
+Python (advanced), FastAPI, Flask, SQL (PostgreSQL), Docker, basic AWS (EC2, S3, RDS), OpenAI API,
+Anthropic API, pgvector, prompt engineering, pytest, Git, REST API design, SOLID principles.
+
+Education
+B.S. in Computer Science, University of Colorado Boulder, 2021
+
+Projects
+Receipt Parser (personal project, github.com/jordanavery-dev/receipt-parser) -- a small FastAPI service
+that extracts line items from scanned receipts using an LLM vision model and stores them in Postgres.
+Built to learn structured-output prompting; not deployed anywhere, runs locally via docker-compose.

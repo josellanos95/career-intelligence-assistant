@@ -1,0 +1,33 @@
+Machine Learning Infrastructure Engineer
+Vertex Robotics -- Onsite (Pittsburgh, PA)
+
+About Vertex Robotics
+Vertex Robotics builds computer-vision-guided robotic arms for warehouse picking. Our models run both
+in the cloud for training and on embedded hardware in the field.
+
+The Role
+We need a Machine Learning Infrastructure Engineer to build and operate the training and serving
+infrastructure behind our computer vision models, from raw sensor data to a deployed model on a robot.
+
+Responsibilities
+- Build and maintain large-scale data ingestion pipelines (Spark, Airflow) that turn raw sensor logs into
+  labeled training sets.
+- Own model training infrastructure on Kubernetes, including distributed training jobs and experiment
+  tracking (MLflow).
+- Build model serving infrastructure (BentoML or a custom serving layer) capable of meeting strict
+  latency budgets for real-time robotic control.
+- Work closely with the computer vision research team to productionize new model architectures.
+- Manage GPU cluster capacity and cost across training and inference workloads.
+
+Requirements
+- 4+ years of experience in ML infrastructure or MLOps, not general backend engineering.
+- Deep hands-on experience with Kubernetes for both training and serving workloads.
+- Experience with distributed data processing (Spark, Beam, or similar) at production scale.
+- Experience with a model serving framework (BentoML, Triton, TorchServe, or similar).
+- Strong Python; C++ experience is a plus for embedded inference work.
+- Computer vision domain experience (image/video model training or serving).
+
+Nice to Have
+- Experience with embedded or edge model deployment (Jetson, Coral, or similar).
+- Experience with experiment tracking and model registries (MLflow, SageMaker, Vertex AI).
+- Prior robotics or industrial automation domain exposure.
