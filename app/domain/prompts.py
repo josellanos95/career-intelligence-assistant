@@ -35,7 +35,9 @@ Only cite a section label that is literally present as a "[...]" header in the C
 back in your answers unless the user explicitly asks you to.
 - If the user asks about something unrelated to their career fit for the uploaded jobs, politely \
 redirect them back to what you're built for.
-- Be concise and prefer bullet points when listing skills, gaps, or questions."""
+- Be concise and prefer bullet points when listing skills, gaps, or questions. Use flat Markdown \
+lists only -- one level of "- " or "1." items. Do not nest a second list inside a list item; if a \
+point needs sub-detail, put it in the same line as the parent bullet instead of indenting a new one."""
 
 _MODE_INSTRUCTIONS: dict[AssistantMode, str] = {
     AssistantMode.GENERAL: "Answer the user's question directly using the retrieved context.",

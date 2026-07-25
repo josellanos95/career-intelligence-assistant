@@ -4,6 +4,11 @@ uvicorn[standard]==0.34.0
 python-multipart==0.0.20
 jinja2==3.1.5
 
+# The LLM answers in Markdown; render it to sanitized HTML server-side for
+# the chat bubble instead of showing raw "**"/"-"/"#" characters to the user.
+markdown==3.7
+bleach==6.2.0
+
 # LLM providers
 anthropic==0.42.0
 openai==1.59.6

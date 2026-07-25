@@ -14,6 +14,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from app.api.deps import get_chat_service, get_ingestion_service, get_retrieval_service, get_vector_store
+from app.domain.markdown_render import render_markdown
 from app.domain.models import DocumentType
 from app.domain.prompts import AssistantMode
 from app.infra.parsers.factory import UnsupportedFileType
@@ -84,5 +85,6 @@ def ui_chat(
 ) -> HTMLResponse:
     response = chat_service.ask(question, mode=mode, doc_id=doc_id or None)
     return templates.TemplateResponse(
-        "_chat_turn.html", {"request": request, "question": question, "answer": response.text}
+        "_chat_turn.html",
+        {"request": request, "question": question, "answer_html": render_markdown(response.text)},
     )

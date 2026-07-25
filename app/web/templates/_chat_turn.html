@@ -2,5 +2,15 @@
   <div class="bg-slate-900 text-white rounded-2xl rounded-br-sm px-4 py-2 max-w-[80%] text-sm">{{ question }}</div>
 </div>
 <div class="flex justify-start">
-  <div class="bg-slate-100 text-slate-800 rounded-2xl rounded-bl-sm px-4 py-2 max-w-[80%] text-sm whitespace-pre-wrap">{{ answer }}</div>
+  <div class="bg-slate-100 text-slate-800 rounded-2xl rounded-bl-sm px-4 py-2 max-w-[80%] text-sm
+              [&_p]:mb-2 [&_p:last-child]:mb-0
+              [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2
+              [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2
+              [&_li]:mb-1
+              [&_strong]:font-semibold
+              [&_h1]:font-semibold [&_h1]:text-base [&_h1]:mb-1
+              [&_h2]:font-semibold [&_h2]:text-base [&_h2]:mb-1
+              [&_h3]:font-semibold [&_h3]:text-sm [&_h3]:mb-1
+              [&_code]:bg-slate-200 [&_code]:px-1 [&_code]:rounded [&_code]:text-xs
+              [&_a]:underline [&_a]:text-sky-700">{{ answer_html | safe }}</div>
 </div>
