@@ -13,7 +13,9 @@ openai==1.59.6
 numpy==2.2.1
 
 # Document parsing
-pypdf==5.1.0
+# pymupdf preserves real line breaks and avoids kerning artifacts that pypdf
+# introduces on design-heavy PDFs (see README: PDF parsing decisions)
+pymupdf==1.25.1
 python-docx==1.1.2
 
 # Config & validation
