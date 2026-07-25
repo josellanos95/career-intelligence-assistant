@@ -18,7 +18,7 @@ from pathlib import Path
 
 import numpy as np
 
-from app.domain.models import Chunk, DocumentType, ScoredChunk
+from app.domain.models import Chunk, DocumentSummary, DocumentType, ScoredChunk
 
 
 def _chunk_to_dict(chunk: Chunk) -> dict:
@@ -101,6 +101,29 @@ class NumpyVectorStore:
         ]
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:top_k]
+
+    def list_documents(self) -> list[DocumentSummary]:
+        counts: dict[str, DocumentSummary] = {}
+        for chunk in self._chunks:
+            existing = counts.get(chunk.doc_id)
+            if existing is None:
+                counts[chunk.doc_id] = DocumentSummary(
+                    doc_id=chunk.doc_id, doc_title=chunk.doc_title, doc_type=chunk.doc_type, chunk_count=1
+                )
+            else:
+                counts[chunk.doc_id] = DocumentSummary(
+                    doc_id=existing.doc_id,
+                    doc_title=existing.doc_title,
+                    doc_type=existing.doc_type,
+                    chunk_count=existing.chunk_count + 1,
+                )
+        return list(counts.values())
+
+    def delete_document(self, doc_id: str) -> None:
+        keep = [i for i, c in enumerate(self._chunks) if c.doc_id != doc_id]
+        self._chunks = [self._chunks[i] for i in keep]
+        self._embeddings = self._embeddings[keep] if self._embeddings.size else self._embeddings
+        self._persist()
 
     def clear(self) -> None:
         self._embeddings = np.zeros((0, 0), dtype=np.float32)

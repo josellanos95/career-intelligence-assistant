@@ -46,3 +46,11 @@ class ScoredChunk:
 class ChatMessage:
     role: str  # "user" or "assistant"
     content: str
+
+
+@dataclass(frozen=True)
+class DocumentSummary:
+    doc_id: str
+    doc_title: str
+    doc_type: DocumentType
+    chunk_count: int

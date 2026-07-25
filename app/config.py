@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     openai_chat_model: str = "gpt-4o-mini"
     openai_embedding_model: str = "text-embedding-3-small"
 
-    chroma_persist_dir: str = "./data/chroma"
+    vector_store_dir: str = "./data/vector_store"
 
     log_level: str = "INFO"
     max_context_chunks: int = 8
