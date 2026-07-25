@@ -1,0 +1,14 @@
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "E501", # long lines happen in prose-heavy docstrings/system prompts; the
+            # substance matters more than wrapping at exactly 120 there
+    "B008", # FastAPI's Depends()/File()/Form() in argument defaults is the
+            # framework's own idiomatic DI pattern, not a mutable-default bug
+]
+
+[lint.isort]
+known-first-party = ["app", "evals", "tests"]

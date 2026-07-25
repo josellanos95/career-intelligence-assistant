@@ -95,7 +95,7 @@ class NumpyVectorStore:
 
         results = [
             ScoredChunk(chunk=chunk, score=float(score))
-            for chunk, score in zip(self._chunks, scores)
+            for chunk, score in zip(self._chunks, scores, strict=True)
             if (doc_id is None or chunk.doc_id == doc_id)
             and (doc_type is None or chunk.doc_type == doc_type)
         ]

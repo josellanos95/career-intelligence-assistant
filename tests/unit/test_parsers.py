@@ -10,7 +10,7 @@ from app.infra.parsers.txt_parser import TxtParser
 
 
 def test_txt_parser_decodes_utf8():
-    assert TxtParser().parse("hello wörld".encode("utf-8")) == "hello wörld"
+    assert TxtParser().parse("hello wörld".encode()) == "hello wörld"
 
 
 def test_docx_parser_extracts_paragraphs():

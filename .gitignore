@@ -8,4 +8,7 @@ data/uploads/
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
 .DS_Store
+evals/.eval_store/
+evals/results/
