@@ -128,6 +128,14 @@ split under-fetched the (short) resume and the model cited a section it hadn't a
 reranking, no hybrid BM25 + vector search — at this corpus size, dense retrieval alone is enough, and
 adding a second retrieval mechanism would be complexity in search of a problem it doesn't have here yet.
 
+**Only one active resume at a time.** Uploading a new resume replaces the previous one
+(`RetrievalService.index_chunks`) rather than accumulating both. Job descriptions intentionally support
+many at once (that's the product: compare one resume against several jobs), but resumes have no equivalent
+`doc_id` scoping and are cited in context as a bare `"Resume"` label with no title — found live, uploading a
+second resume silently blended both people's/versions' chunks into every answer with no way to tell them
+apart. The UI already frames this as "Your Resume" (singular, one upload slot); the backend now enforces
+what the UI already implied.
+
 **Prompt & context management.** `domain/prompts.py` builds one shared guardrail block plus a small
 per-mode addendum (General / Skill-gap / Interview-prep), rather than one prompt per intent — the three
 modes are the same task ("answer from retrieved resume/job context") with a different required output
