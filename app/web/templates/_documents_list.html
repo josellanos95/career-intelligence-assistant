@@ -6,13 +6,13 @@
   <ul class="space-y-2 text-sm">
     {% for doc in documents %}
     <li class="border border-slate-200 rounded-lg px-3 py-2">
-      <div class="flex items-center justify-between gap-2">
-        <span>
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0 flex-1 break-words">
           <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full {{ 'bg-emerald-100 text-emerald-700' if doc.doc_type == 'resume' else 'bg-sky-100 text-sky-700' }}">
             {{ 'Resume' if doc.doc_type == 'resume' else 'Job' }}
           </span>
           {{ doc.doc_title }} <span class="text-slate-400">({{ doc.num_chunks }} chunks)</span>
-        </span>
+        </div>
         <button hx-delete="/ui/documents/{{ doc.doc_id }}" hx-target="#documents-panel" hx-swap="innerHTML"
                 class="text-red-500 text-xs font-medium shrink-0">Remove</button>
       </div>
