@@ -8,8 +8,9 @@ jinja2==3.1.5
 anthropic==0.42.0
 openai==1.59.6
 
-# Vector store
-chromadb==0.5.23
+# Vector store (custom numpy-based brute-force cosine similarity, see README
+# for rationale — no ANN index needed at this corpus size)
+numpy==2.2.1
 
 # Document parsing
 pypdf==5.1.0
