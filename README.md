@@ -128,6 +128,20 @@ split under-fetched the (short) resume and the model cited a section it hadn't a
 reranking, no hybrid BM25 + vector search — at this corpus size, dense retrieval alone is enough, and
 adding a second retrieval mechanism would be complexity in search of a problem it doesn't have here yet.
 
+**Comparing against every uploaded job at once doesn't pool them into one search, either.** The "Focus on
+job" selector's "All documents" option (`doc_id=None`) used to run one top-k search across every uploaded
+job's chunks pooled together — found live, with three jobs uploaded, a generic "what am I missing"
+question came back grounded in only one of them, because that job's chunks happened to embed closest to
+the question; the other two were silently absent from the model's context, with no signal of that beyond
+reading each citation closely. `RetrievalService.search_job_descriptions` now searches each uploaded job
+separately and concatenates when no single job is selected, so every uploaded job is guaranteed to
+contribute chunks — the same "generous, fixed budget beats an even split" reasoning as the resume budget
+above, applied to jobs now that there's more than one to lose to the same failure mode. There's a
+regression test for this
+(`tests/unit/test_retrieval_service.py::test_search_job_descriptions_across_all_jobs_includes_every_job`)
+and an eval case exercising it against the real LLM
+(`evals/cases.py::all_jobs_scope_covers_every_uploaded_job`).
+
 **Only one active resume at a time.** Uploading a new resume replaces the previous one
 (`RetrievalService.index_chunks`) rather than accumulating both. Job descriptions intentionally support
 many at once (that's the product: compare one resume against several jobs), but resumes have no equivalent
@@ -291,5 +305,17 @@ GCP/Azure/Cloudflare):
 
 ## Screenshots
 
-Not included in this commit — add a couple of screenshots of the running UI here (the upload panel, a
-skill-gap answer, an interview-prep answer) before submitting.
+**Empty state**, with the sample resume and all three sample jobs from `samples/` uploaded:
+
+![Empty chat state with documents uploaded](docs/screenshots/home.png)
+
+**Skill-gap analysis** (the "Analyze fit" quick action on a job card, scoped to that one job): matched
+skills, missing skills, and an overall fit assessment, each claim cited back to a resume or job section:
+
+![Skill-gap analysis answer](docs/screenshots/analyze-fit.png)
+
+**Interview prep** (the "Prep interview" quick action): structured questions with coaching notes grounded
+in the candidate's actual resume, including honestly flagging what the resume doesn't cover instead of
+inventing an answer:
+
+![Interview prep answer](docs/screenshots/prep-interview.png)
