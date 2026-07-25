@@ -76,3 +76,29 @@ def test_ask_scopes_retrieval_to_a_single_document(tmp_path):
 
     assert "Needs Java" in fake_llm.last_messages[-1].content
     assert "Needs Python" not in fake_llm.last_messages[-1].content
+
+
+def test_ask_always_includes_resume_even_when_scoped_to_one_job(tmp_path):
+    """Regression test: scoping to a single job must not exclude the resume.
+
+    Found live: a doc_id filter applied to the whole retrieval call excluded
+    the resume (different doc_id), and the model quietly filled the gap by
+    fabricating plausible-looking resume citations instead of refusing.
+    Resume and job-description chunks must be fetched independently.
+    """
+    fake_llm = FakeLLM()
+    service, retrieval = _make_service(tmp_path, fake_llm)
+    retrieval.index_chunks(
+        [
+            Chunk(id="r1", doc_id="resume", doc_type=DocumentType.RESUME, doc_title="Resume", section="Skills", text="Python expert"),
+            Chunk(id="j1", doc_id="job-1", doc_type=DocumentType.JOB_DESCRIPTION, doc_title="Job 1", section="Requirements", text="Needs Python"),
+            Chunk(id="j2", doc_id="job-2", doc_type=DocumentType.JOB_DESCRIPTION, doc_title="Job 2", section="Requirements", text="Needs Java"),
+        ]
+    )
+
+    service.ask("Am I a fit for this job?", mode=AssistantMode.SKILL_GAP, doc_id="job-2")
+
+    content = fake_llm.last_messages[-1].content
+    assert "Python expert" in content
+    assert "Needs Java" in content
+    assert "Needs Python" not in content
