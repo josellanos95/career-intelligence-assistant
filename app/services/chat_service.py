@@ -28,6 +28,12 @@ class ChatService:
     cited "(Resume - Skills)" anyway for a claim it was actually inferring
     from the Experience section. Retrieving generously from the resume
     costs little (it's small) and removes that failure mode.
+
+    Job-description retrieval goes through
+    RetrievalService.search_job_descriptions rather than a plain search, for
+    the same reason: when comparing against every uploaded job at once
+    (doc_id=None), a single pooled top-k search can end up returning chunks
+    from only one of several uploaded jobs -- see that method's docstring.
     """
 
     _RESUME_TOP_K = 10
@@ -45,9 +51,7 @@ class ChatService:
         doc_id: str | None = None,
     ) -> LLMResponse:
         resume_chunks = self._retrieval.search(question, top_k=self._RESUME_TOP_K, doc_type=DocumentType.RESUME)
-        job_chunks = self._retrieval.search(
-            question, top_k=self._top_k, doc_type=DocumentType.JOB_DESCRIPTION, doc_id=doc_id
-        )
+        job_chunks = self._retrieval.search_job_descriptions(question, top_k=self._top_k, doc_id=doc_id)
         system_prompt = build_system_prompt(mode)
         user_turn = build_user_turn(question, resume_chunks + job_chunks)
         messages = [*(history or []), ChatMessage(role="user", content=user_turn)]

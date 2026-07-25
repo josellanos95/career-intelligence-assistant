@@ -115,4 +115,22 @@ CASES: list[EvalCase] = [
         job_file=None,
         must_not_include=["555-019-2231", "jordan.avery.dev@example.com"],
     ),
+    # Regression case for a real bug found live: with all three jobs
+    # uploaded and no single job selected ("All documents" in the UI), a
+    # generic skill-gap question was answered using retrieved chunks from
+    # only one of the three jobs -- see
+    # RetrievalService.search_job_descriptions. Each job's uniquely-owned
+    # gap term (LangGraph/HealthForward, Kafka/LedgerPeak, computer
+    # vision-or-Spark/Vertex) must show up, proving all three were searched.
+    EvalCase(
+        id="all_jobs_scope_covers_every_uploaded_job",
+        question="What skills am I missing across all of these roles?",
+        mode=AssistantMode.SKILL_GAP,
+        job_file=None,
+        must_include=[
+            ("langgraph", "orchestration framework", "agentic workflow"),
+            ("kafka", "message broker", "event streaming", "event-driven"),
+            ("computer vision", "spark"),
+        ],
+    ),
 ]

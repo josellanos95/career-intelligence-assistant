@@ -53,3 +53,41 @@ class RetrievalService:
     ) -> list[ScoredChunk]:
         query_embedding = self._embedder.embed([query])[0]
         return self._store.search(query_embedding, top_k=top_k, doc_id=doc_id, doc_type=doc_type)
+
+    def search_job_descriptions(self, query: str, top_k: int, doc_id: str | None = None) -> list[ScoredChunk]:
+        """Retrieve job-description chunks for one chat question.
+
+        Scoped to one job (`doc_id` given), this is a plain top-k search. But
+        scoped to every uploaded job at once (`doc_id=None`, the UI's "All
+        documents" mode), a single top-k search pooling every job's chunks
+        together can end up dominated by whichever job happens to embed
+        closest to the question -- found live, a generic "what am I missing"
+        question with three jobs uploaded returned gaps for only one of them,
+        with nothing to signal that to the user beyond reading each citation
+        closely. Searching each job separately and concatenating instead
+        guarantees every uploaded job contributes up to `top_k` chunks -- the
+        same "a generous, fixed budget beats an even split" call already made
+        for the resume budget in ChatService, applied here now that job
+        descriptions can also outnumber each other in a shared pool.
+        """
+        query_embedding = self._embedder.embed([query])[0]
+
+        if doc_id is not None:
+            return self._store.search(
+                query_embedding, top_k=top_k, doc_id=doc_id, doc_type=DocumentType.JOB_DESCRIPTION
+            )
+
+        job_doc_ids = sorted(
+            {doc.doc_id for doc in self._store.list_documents() if doc.doc_type == DocumentType.JOB_DESCRIPTION}
+        )
+        if len(job_doc_ids) <= 1:
+            return self._store.search(query_embedding, top_k=top_k, doc_type=DocumentType.JOB_DESCRIPTION)
+
+        results: list[ScoredChunk] = []
+        for job_id in job_doc_ids:
+            results.extend(
+                self._store.search(
+                    query_embedding, top_k=top_k, doc_id=job_id, doc_type=DocumentType.JOB_DESCRIPTION
+                )
+            )
+        return results
