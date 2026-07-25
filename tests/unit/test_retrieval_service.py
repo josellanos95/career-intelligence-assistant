@@ -58,3 +58,28 @@ def test_index_chunks_with_empty_list_does_not_raise(tmp_path):
     service.index_chunks([])
 
     assert store.search([1.0, 0.0, 0.0], top_k=5) == []
+
+
+def test_indexing_a_new_resume_replaces_the_previous_one(tmp_path):
+    store = NumpyVectorStore(str(tmp_path))
+    service = RetrievalService(embedder=KeywordEmbedder(), store=store)
+    service.index_chunks([make_chunk("r1", "resume-old", DocumentType.RESUME, "Old Python resume.")])
+
+    service.index_chunks([make_chunk("r2", "resume-new", DocumentType.RESUME, "New Java resume.")])
+
+    results = service.search("python java", top_k=10, doc_type=DocumentType.RESUME)
+    assert len(results) == 1
+    assert results[0].chunk.doc_id == "resume-new"
+
+
+def test_indexing_a_new_resume_does_not_remove_job_descriptions(tmp_path):
+    store = NumpyVectorStore(str(tmp_path))
+    service = RetrievalService(embedder=KeywordEmbedder(), store=store)
+    service.index_chunks([make_chunk("j1", "job-1", DocumentType.JOB_DESCRIPTION, "Requires Python.")])
+    service.index_chunks([make_chunk("r1", "resume-a", DocumentType.RESUME, "Python resume.")])
+
+    service.index_chunks([make_chunk("r2", "resume-b", DocumentType.RESUME, "Java resume.")])
+
+    results = service.search("python", top_k=10, doc_type=DocumentType.JOB_DESCRIPTION)
+    assert len(results) == 1
+    assert results[0].chunk.doc_id == "job-1"
