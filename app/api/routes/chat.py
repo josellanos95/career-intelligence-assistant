@@ -6,9 +6,11 @@ from pydantic import BaseModel
 from app.api.deps import get_chat_service
 from app.domain.models import ChatMessage
 from app.domain.prompts import AssistantMode
+from app.infra.observability.logging import get_logger
 from app.services.chat_service import ChatService
 
 router = APIRouter(prefix="/chat", tags=["chat"])
+logger = get_logger(__name__)
 
 
 class ChatTurn(BaseModel):
@@ -38,6 +40,20 @@ class ChatResponseModel(BaseModel):
 def chat(request: ChatRequest, chat_service: ChatService = Depends(get_chat_service)) -> ChatResponseModel:
     history = [ChatMessage(role=turn.role, content=turn.content) for turn in request.history]
     response = chat_service.ask(request.question, history=history, mode=request.mode, doc_id=request.doc_id)
+    # Log length, not the raw question/answer text -- resumes and job
+    # questions can carry personal data, and the guardrails already avoid
+    # echoing contact details back to the user (app/domain/prompts.py); logs
+    # shouldn't be a side channel that undoes that.
+    logger.info(
+        "chat_completed",
+        mode=request.mode.value,
+        doc_id=request.doc_id,
+        question_length=len(request.question),
+        model=response.model,
+        input_tokens=response.input_tokens,
+        output_tokens=response.output_tokens,
+        latency_ms=round(response.latency_ms, 2),
+    )
     return ChatResponseModel(
         answer=response.text,
         model=response.model,

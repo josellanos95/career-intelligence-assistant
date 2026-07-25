@@ -17,6 +17,7 @@ from app.api.deps import get_chat_service, get_ingestion_service, get_retrieval_
 from app.domain.markdown_render import render_markdown
 from app.domain.models import DocumentType
 from app.domain.prompts import AssistantMode
+from app.infra.observability.logging import get_logger
 from app.infra.parsers.factory import UnsupportedFileType
 from app.infra.vectorstore.numpy_store import NumpyVectorStore
 from app.services.chat_service import ChatService
@@ -24,6 +25,7 @@ from app.services.ingestion_service import IngestionService
 from app.services.retrieval_service import RetrievalService
 
 router = APIRouter(tags=["ui"])
+logger = get_logger(__name__)
 
 _TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "web" / "templates"
 templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
@@ -58,10 +60,18 @@ async def ui_upload(
         chunks = ingestion.ingest(file.filename or "upload", content, doc_type, title=title or None)
         if not chunks:
             error = "No extractable text found in that file."
+            logger.warning("document_upload_empty", filename=file.filename, doc_type=doc_type.value)
         else:
             retrieval.index_chunks(chunks)
+            logger.info(
+                "document_uploaded",
+                doc_id=chunks[0].doc_id,
+                doc_type=doc_type.value,
+                num_chunks=len(chunks),
+            )
     except UnsupportedFileType as exc:
         error = str(exc)
+        logger.warning("document_upload_rejected", filename=file.filename, reason=error)
 
     context = {"request": request, "error": error, **_documents_context(store)}
     return templates.TemplateResponse("_documents_update.html", context)
@@ -72,6 +82,7 @@ def ui_delete_document(
     request: Request, doc_id: str, store: NumpyVectorStore = Depends(get_vector_store)
 ) -> HTMLResponse:
     store.delete_document(doc_id)
+    logger.info("document_deleted", doc_id=doc_id)
     return templates.TemplateResponse("_documents_update.html", {"request": request, **_documents_context(store)})
 
 
@@ -84,6 +95,16 @@ def ui_chat(
     chat_service: ChatService = Depends(get_chat_service),
 ) -> HTMLResponse:
     response = chat_service.ask(question, mode=mode, doc_id=doc_id or None)
+    logger.info(
+        "chat_completed",
+        mode=mode.value,
+        doc_id=doc_id or None,
+        question_length=len(question),
+        model=response.model,
+        input_tokens=response.input_tokens,
+        output_tokens=response.output_tokens,
+        latency_ms=round(response.latency_ms, 2),
+    )
     return templates.TemplateResponse(
         "_chat_turn.html",
         {"request": request, "question": question, "answer_html": render_markdown(response.text)},
