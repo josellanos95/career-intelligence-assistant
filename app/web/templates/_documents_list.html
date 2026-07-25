@@ -1,0 +1,34 @@
+{% if error %}
+<div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2 mb-3">{{ error }}</div>
+{% endif %}
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+  <h2 class="font-semibold text-lg mb-3">Uploaded Documents</h2>
+  <ul class="space-y-2 text-sm">
+    {% for doc in documents %}
+    <li class="border border-slate-200 rounded-lg px-3 py-2">
+      <div class="flex items-center justify-between gap-2">
+        <span>
+          <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full {{ 'bg-emerald-100 text-emerald-700' if doc.doc_type == 'resume' else 'bg-sky-100 text-sky-700' }}">
+            {{ 'Resume' if doc.doc_type == 'resume' else 'Job' }}
+          </span>
+          {{ doc.doc_title }} <span class="text-slate-400">({{ doc.num_chunks }} chunks)</span>
+        </span>
+        <button hx-delete="/ui/documents/{{ doc.doc_id }}" hx-target="#documents-panel" hx-swap="innerHTML"
+                class="text-red-500 text-xs font-medium shrink-0">Remove</button>
+      </div>
+      {% if doc.doc_type == 'job_description' %}
+      <div class="flex gap-1 mt-2">
+        <button hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend"
+                hx-vals='{"question": "Analyze how my resume aligns with this job: matched skills, missing skills, and an overall fit assessment.", "mode": "skill_gap", "doc_id": "{{ doc.doc_id }}"}'
+                class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">Analyze fit</button>
+        <button hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend"
+                hx-vals='{"question": "Prepare me for an interview for this role.", "mode": "interview_prep", "doc_id": "{{ doc.doc_id }}"}'
+                class="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700 font-medium">Prep interview</button>
+      </div>
+      {% endif %}
+    </li>
+    {% else %}
+    <li class="text-slate-400 text-sm">No documents uploaded yet.</li>
+    {% endfor %}
+  </ul>
+</div>

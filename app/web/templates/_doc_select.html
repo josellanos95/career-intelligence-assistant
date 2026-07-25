@@ -1,0 +1,9 @@
+<select id="doc-id-select" name="doc_id" hx-swap-oob="true"
+        class="border border-slate-300 rounded-lg text-sm px-2 flex-1">
+  <option value="">All documents</option>
+  {% for doc in documents %}
+    {% if doc.doc_type == 'job_description' %}
+    <option value="{{ doc.doc_id }}">{{ doc.doc_title }}</option>
+    {% endif %}
+  {% endfor %}
+</select>

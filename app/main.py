@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.routes import chat, documents
+from app.api.routes import chat, documents, ui
 from app.config import get_settings
 
 settings = get_settings()
@@ -8,6 +8,7 @@ settings = get_settings()
 app = FastAPI(title="Career Intelligence Assistant")
 app.include_router(documents.router)
 app.include_router(chat.router)
+app.include_router(ui.router)
 
 
 @app.get("/health")
