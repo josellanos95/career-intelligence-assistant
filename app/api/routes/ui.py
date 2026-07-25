@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 from app.api.deps import get_chat_service, get_ingestion_service, get_retrieval_service, get_vector_store
 from app.domain.markdown_render import render_markdown
 from app.domain.models import DocumentType
-from app.domain.prompts import AssistantMode
+from app.domain.prompts import AssistantMode, default_question_for
 from app.infra.observability.logging import get_logger
 from app.infra.parsers.factory import UnsupportedFileType
 from app.infra.vectorstore.numpy_store import NumpyVectorStore
@@ -89,17 +89,29 @@ def ui_delete_document(
 @router.post("/ui/chat", response_class=HTMLResponse)
 def ui_chat(
     request: Request,
-    question: str = Form(...),
+    question: str = Form(""),
     mode: AssistantMode = Form(AssistantMode.GENERAL),
     doc_id: str = Form(""),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> HTMLResponse:
-    response = chat_service.ask(question, mode=mode, doc_id=doc_id or None)
+    # Resolved here, not just inside ChatService, so the chat bubble shows
+    # what was actually asked when the box was left blank for skill-gap /
+    # interview-prep, instead of rendering an empty user bubble.
+    resolved_question = question.strip() or default_question_for(mode) or question
+
+    try:
+        response = chat_service.ask(resolved_question, mode=mode, doc_id=doc_id or None)
+    except ValueError as exc:
+        return templates.TemplateResponse(
+            "_chat_turn.html",
+            {"request": request, "question": question.strip() or "(blank)", "answer_html": render_markdown(f"_{exc}_")},
+        )
+
     logger.info(
         "chat_completed",
         mode=mode.value,
         doc_id=doc_id or None,
-        question_length=len(question),
+        question_length=len(resolved_question),
         model=response.model,
         input_tokens=response.input_tokens,
         output_tokens=response.output_tokens,
@@ -107,5 +119,5 @@ def ui_chat(
     )
     return templates.TemplateResponse(
         "_chat_turn.html",
-        {"request": request, "question": question, "answer_html": render_markdown(response.text)},
+        {"request": request, "question": resolved_question, "answer_html": render_markdown(response.text)},
     )

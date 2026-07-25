@@ -1,5 +1,5 @@
 from app.domain.models import Chunk, DocumentType, ScoredChunk
-from app.domain.prompts import AssistantMode, build_system_prompt, build_user_turn, format_context
+from app.domain.prompts import AssistantMode, build_system_prompt, build_user_turn, default_question_for, format_context
 
 
 def make_scored_chunk(doc_type, title, section, text, score=0.9):
@@ -59,3 +59,12 @@ def test_build_user_turn_includes_formatted_context():
 
     assert "[Resume - Skills]" in result
     assert "Python, FastAPI" in result
+
+
+def test_default_question_exists_for_skill_gap_and_interview_prep():
+    assert default_question_for(AssistantMode.SKILL_GAP)
+    assert default_question_for(AssistantMode.INTERVIEW_PREP)
+
+
+def test_default_question_is_none_for_general():
+    assert default_question_for(AssistantMode.GENERAL) is None

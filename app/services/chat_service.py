@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.domain.models import ChatMessage, DocumentType
-from app.domain.prompts import AssistantMode, build_system_prompt, build_user_turn
+from app.domain.prompts import AssistantMode, build_system_prompt, build_user_turn, default_question_for
 from app.infra.llm.base import LLMProvider, LLMResponse
 from app.services.retrieval_service import RetrievalService
 
@@ -34,6 +34,12 @@ class ChatService:
     the same reason: when comparing against every uploaded job at once
     (doc_id=None), a single pooled top-k search can end up returning chunks
     from only one of several uploaded jobs -- see that method's docstring.
+
+    A blank question is only an error in General Q&A mode. Skill-gap and
+    interview-prep are meaningful requests on their own once a mode (and
+    usually a job) is picked, so a blank box falls back to
+    domain.prompts.default_question_for(mode) instead of forcing the user to
+    type something the UI already implied.
     """
 
     _RESUME_TOP_K = 10
@@ -50,6 +56,10 @@ class ChatService:
         mode: AssistantMode = AssistantMode.GENERAL,
         doc_id: str | None = None,
     ) -> LLMResponse:
+        question = question.strip() or default_question_for(mode) or ""
+        if not question:
+            raise ValueError("A question is required for General Q&A.")
+
         resume_chunks = self._retrieval.search(question, top_k=self._RESUME_TOP_K, doc_type=DocumentType.RESUME)
         job_chunks = self._retrieval.search_job_descriptions(question, top_k=self._top_k, doc_id=doc_id)
         system_prompt = build_system_prompt(mode)

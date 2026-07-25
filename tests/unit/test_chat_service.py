@@ -1,3 +1,5 @@
+import pytest
+
 from app.domain.models import ChatMessage, Chunk, DocumentType
 from app.domain.prompts import AssistantMode
 from app.infra.llm.base import LLMResponse
@@ -102,3 +104,29 @@ def test_ask_always_includes_resume_even_when_scoped_to_one_job(tmp_path):
     assert "Python expert" in content
     assert "Needs Java" in content
     assert "Needs Python" not in content
+
+
+def test_ask_falls_back_to_a_default_question_for_skill_gap_when_blank(tmp_path):
+    fake_llm = FakeLLM()
+    service, _ = _make_service(tmp_path, fake_llm)
+
+    service.ask("   ", mode=AssistantMode.SKILL_GAP)
+
+    assert "missing" in fake_llm.last_messages[-1].content.lower()
+
+
+def test_ask_falls_back_to_a_default_question_for_interview_prep_when_blank(tmp_path):
+    fake_llm = FakeLLM()
+    service, _ = _make_service(tmp_path, fake_llm)
+
+    service.ask("", mode=AssistantMode.INTERVIEW_PREP)
+
+    assert "interview" in fake_llm.last_messages[-1].content.lower()
+
+
+def test_ask_raises_for_a_blank_question_in_general_mode(tmp_path):
+    fake_llm = FakeLLM()
+    service, _ = _make_service(tmp_path, fake_llm)
+
+    with pytest.raises(ValueError):
+        service.ask("", mode=AssistantMode.GENERAL)

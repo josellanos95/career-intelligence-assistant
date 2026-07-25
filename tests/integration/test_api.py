@@ -82,6 +82,19 @@ def test_chat_returns_answer_grounded_in_uploaded_document(client):
     assert body["model"] == "fake"
 
 
+def test_chat_with_blank_question_uses_default_for_skill_gap(client):
+    response = client.post("/chat", json={"question": "", "mode": "skill_gap"})
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == "fake answer"
+
+
+def test_chat_with_blank_question_returns_400_for_general_mode(client):
+    response = client.post("/chat", json={"question": "", "mode": "general"})
+
+    assert response.status_code == 400
+
+
 def test_delete_document_removes_it_from_listing(client):
     upload = client.post(
         "/documents/upload",

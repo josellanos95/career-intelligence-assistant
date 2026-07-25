@@ -18,11 +18,15 @@
       </div>
       {% if doc.doc_type == 'job_description' %}
       <div class="flex gap-1 mt-2">
+        <!-- No "question" in hx-vals: the backend falls back to a default
+             question per mode when the box is blank (see
+             app/domain/prompts.py:default_question_for), so the canned
+             question text lives in one place instead of here too. -->
         <button hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend"
-                hx-vals='{"question": "Analyze how my resume aligns with this job: matched skills, missing skills, and an overall fit assessment.", "mode": "skill_gap", "doc_id": "{{ doc.doc_id }}"}'
+                hx-vals='{"mode": "skill_gap", "doc_id": "{{ doc.doc_id }}"}'
                 class="text-xs px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">Analyze fit</button>
         <button hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend"
-                hx-vals='{"question": "Prepare me for an interview for this role.", "mode": "interview_prep", "doc_id": "{{ doc.doc_id }}"}'
+                hx-vals='{"mode": "interview_prep", "doc_id": "{{ doc.doc_id }}"}'
                 class="text-xs px-2 py-1 rounded-full bg-violet-100 text-violet-700 font-medium">Prep interview</button>
       </div>
       {% endif %}

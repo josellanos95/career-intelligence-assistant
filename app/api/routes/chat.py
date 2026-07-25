@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.api.deps import get_chat_service
@@ -19,7 +19,10 @@ class ChatTurn(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    question: str
+    # Optional: skill-gap and interview-prep have a sensible default question
+    # when left blank (see app.domain.prompts.default_question_for);
+    # General Q&A does not and ChatService.ask() raises for it.
+    question: str = ""
     mode: AssistantMode = AssistantMode.GENERAL
     doc_id: str | None = None
     # Chat history lives on the client and is resent each turn -- the server
@@ -39,7 +42,10 @@ class ChatResponseModel(BaseModel):
 @router.post("", response_model=ChatResponseModel)
 def chat(request: ChatRequest, chat_service: ChatService = Depends(get_chat_service)) -> ChatResponseModel:
     history = [ChatMessage(role=turn.role, content=turn.content) for turn in request.history]
-    response = chat_service.ask(request.question, history=history, mode=request.mode, doc_id=request.doc_id)
+    try:
+        response = chat_service.ask(request.question, history=history, mode=request.mode, doc_id=request.doc_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
     # Log length, not the raw question/answer text -- resumes and job
     # questions can carry personal data, and the guardrails already avoid
     # echoing contact details back to the user (app/domain/prompts.py); logs

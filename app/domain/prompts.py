@@ -60,6 +60,26 @@ def build_system_prompt(mode: AssistantMode) -> str:
     return f"{_BASE_GUARDRAILS}\n\n{_MODE_INSTRUCTIONS[mode]}"
 
 
+_DEFAULT_QUESTIONS: dict[AssistantMode, str] = {
+    AssistantMode.SKILL_GAP: "What skills am I missing, and where do I match well?",
+    AssistantMode.INTERVIEW_PREP: "Prepare me for an interview.",
+}
+
+
+def default_question_for(mode: AssistantMode) -> str | None:
+    """The question to substitute when the chat box is left blank.
+
+    Skill-gap and interview-prep are meaningful requests on their own once a
+    mode (and usually a specific job) is picked -- the per-job "Analyze fit"
+    / "Prep interview" quick actions already rely on exactly this kind of
+    canned question. General Q&A has no sensible default: there's no
+    "general" question that isn't really asking something specific, so a
+    blank box in that mode is still a user error, not something to paper
+    over with a made-up default.
+    """
+    return _DEFAULT_QUESTIONS.get(mode)
+
+
 def format_context(chunks: list[ScoredChunk]) -> str:
     blocks = []
     for scored in chunks:

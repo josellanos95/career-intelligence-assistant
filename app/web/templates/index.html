@@ -91,12 +91,13 @@
       <form hx-post="/ui/chat" hx-target="#chat-log" hx-swap="beforeend"
             hx-indicator="#typing-indicator" hx-disabled-elt="find button"
             hx-on::before-request="document.getElementById('chat-empty-state')?.remove()"
-            hx-on::after-request="this.reset()"
+            hx-on::after-request="this.reset(); syncQuestionRequirement()"
             class="p-4 border-t border-slate-200 space-y-2">
         <div class="flex gap-2">
           <div class="flex-1">
             <label class="block text-xs font-medium text-slate-500 mb-1">Mode</label>
-            <select name="mode" class="w-full border border-slate-300 rounded-lg text-sm px-2 py-1.5">
+            <select name="mode" onchange="syncQuestionRequirement()"
+                    class="w-full border border-slate-300 rounded-lg text-sm px-2 py-1.5">
               <option value="general">General Q&amp;A</option>
               <option value="skill_gap">Skill-gap analysis</option>
               <option value="interview_prep">Interview prep</option>
@@ -125,10 +126,27 @@
       input.focus();
     }
 
+    // Skill-gap and interview-prep have a sensible default question when
+    // left blank (see app/domain/prompts.py:default_question_for) -- only
+    // General Q&A has no default, so only that mode should actually block
+    // submission on an empty box.
+    function syncQuestionRequirement() {
+      const modeSelect = document.querySelector('select[name="mode"]');
+      const questionInput = document.querySelector('input[name="question"]');
+      if (!modeSelect || !questionInput) return;
+      const hasDefault = modeSelect.value !== 'general';
+      questionInput.required = !hasDefault;
+      questionInput.placeholder = hasDefault
+        ? 'Optional — leave blank to use a default question for this mode'
+        : 'e.g. What skills am I missing for this role?';
+    }
+
     document.body.addEventListener('htmx:afterSwap', () => {
       const log = document.getElementById('chat-log');
       if (log) log.scrollTop = log.scrollHeight;
     });
+
+    syncQuestionRequirement();
   </script>
 </body>
 </html>
