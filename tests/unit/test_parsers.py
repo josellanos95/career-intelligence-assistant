@@ -43,14 +43,14 @@ def test_pdf_parser_preserves_line_breaks():
 
     doc = pymupdf.open()
     page = doc.new_page()
-    page.insert_text((72, 72), "Your Mission")
-    page.insert_text((72, 100), "We build things.")
+    page.insert_text((72, 72), "Section Header")
+    page.insert_text((72, 100), "Some body text.")
     buffer = io.BytesIO(doc.tobytes())
 
     text = PdfParser().parse(buffer.getvalue())
 
     lines = [line.strip() for line in text.splitlines() if line.strip()]
-    assert "Your Mission" in lines
+    assert "Section Header" in lines
 
 
 def test_factory_returns_pdf_parser_for_pdf_extension():

@@ -29,13 +29,10 @@ _KNOWN_HEADERS = {
     "key strengths", "certifications", "projects", "featured projects",
     "languages",
     # English - job description
-    "about the role", "about the company", "your mission", "the role",
+    "about the role", "about the company", "the role",
     "responsibilities", "what you'll do", "requirements", "what you bring",
     "qualifications", "what we offer", "bonus skills", "bonus skills / experience",
     "nice to have", "preferred qualifications", "ready to apply",
-    "what to submit", "what we're looking for", "tips & notes", "assignment",
-    "problem / opportunity discovery", "build (fast) with ai",
-    "test, deploy, productionize",
     # Spanish (accents stripped by _normalize before comparison)
     "resumen profesional", "resumen", "perfil", "objetivo",
     "fortalezas clave", "habilidades tecnicas", "habilidades",

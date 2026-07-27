@@ -32,13 +32,13 @@ def test_interview_prep_prompt_asks_for_questions():
 def test_format_context_labels_resume_and_job_chunks_differently():
     chunks = [
         make_scored_chunk(DocumentType.RESUME, "My Resume", "Skills", "Python, FastAPI"),
-        make_scored_chunk(DocumentType.JOB_DESCRIPTION, "Forward Deployed Engineer", "What You Bring", "3+ years..."),
+        make_scored_chunk(DocumentType.JOB_DESCRIPTION, "Senior Backend Engineer", "Requirements", "3+ years..."),
     ]
 
     context = format_context(chunks)
 
     assert "[Resume - Skills]" in context
-    assert "[Job: Forward Deployed Engineer - What You Bring]" in context
+    assert "[Job: Senior Backend Engineer - Requirements]" in context
 
 
 def test_format_context_returns_empty_string_for_no_chunks():

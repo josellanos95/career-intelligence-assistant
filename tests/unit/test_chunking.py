@@ -53,12 +53,12 @@ def test_chunk_ids_are_unique():
 
 
 def test_about_company_header_is_detected_generically():
-    text = "About Acme Corp\nAcme Corp builds things.\n\nYour Mission\nDo great work."
+    text = "About Acme Corp\nAcme Corp builds things.\n\nRequirements\nMust know Python."
     doc = ParsedDocument(doc_id="d6", doc_type=DocumentType.JOB_DESCRIPTION, title="jd.txt", raw_text=text)
     chunks = SectionChunker().chunk(doc)
     sections = {c.section for c in chunks}
     assert "About Acme Corp" in sections
-    assert "Your Mission" in sections
+    assert "Requirements" in sections
 
 
 def test_no_chunk_exceeds_max_chars_by_much():

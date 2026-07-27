@@ -4,9 +4,6 @@ A RAG-based assistant that answers questions about how a resume fits one or more
 matched skills, gaps, and interview prep. Upload a resume once, add as many job descriptions as you want
 to compare against, then ask questions in plain English.
 
-Built for the Newpage AI Forward Deployed Engineer take-home assignment (Option 4: Career Intelligence
-Assistant).
-
 ## Quick setup
 
 Requires an OpenAI API key (used for embeddings always, and for chat if `LLM_PROVIDER=openai`) and,
@@ -187,13 +184,13 @@ undoes the guardrail against leaking contact details.
 
 Two different kinds of correctness check, kept deliberately separate:
 
-- **`tests/`** — 56 pytest tests (unit + integration), all against fake embedder/LLM doubles. No API key
+- **`tests/`** — 68 pytest tests (unit + integration), all against fake embedder/LLM doubles. No API key
   needed, runs in under 2 seconds, runs in CI on every push. These check *code* correctness: does chunking
   split where it should, does the vector store filter correctly, does the API return the right status
   codes, does `ChatService` assemble the right prompt. `test_ask_always_includes_resume_even_when_scoped_to_one_job`
   is a regression test for the real retrieval bug described above.
 - **`evals/`** — a hands-on harness (`python -m evals.run_evals`) that ingests the fictional resume and
-  three fictional job descriptions from `samples/` and asks 8 real questions through the real embedding
+  three fictional job descriptions from `samples/` and asks 9 real questions through the real embedding
   and LLM providers, then checks each answer for required/forbidden content (`evals/cases.py`). This
   checks *answer quality*: does retrieval surface the right facts, does skill-gap mode name the actual
   gaps, does the assistant stay honest about a genuinely poor fit instead of defaulting to positive spin,
@@ -210,7 +207,7 @@ Two different kinds of correctness check, kept deliberately separate:
   the answer against a rubric instead of grep-style matching — the honest limitation of what's here now is
   that it checks specific facts I hand-picked, not general answer quality.
 
-## Engineering standards followed (and skipped)
+## Engineering standards
 
 Followed: layered architecture with the domain layer free of framework imports (testable without FastAPI
 or an LLM client); Pydantic-validated config from a single `Settings` object (12-factor config, no scattered
@@ -218,7 +215,7 @@ or an LLM client); Pydantic-validated config from a single `Settings` object (12
 with fakes instead of hitting real APIs; structured logging; a linter (`ruff`) and CI (GitHub Actions)
 running lint + tests on every push; small, single-purpose commits.
 
-Skipped, deliberately, given the scope of a take-home: no authentication — anyone who can reach the
+Skipped, deliberately, given the current scope (a single-user, single-instance project): no authentication — anyone who can reach the
 service can upload, read, or delete any document; no per-user or per-session isolation — the vector store
 is one global store shared by everyone using the instance, which is fine for a single local demo and wrong
 for anything with more than one concurrent user; no rate limiting; strict TDD (tests were written alongside
@@ -277,7 +274,7 @@ GCP/Azure/Cloudflare):
 - **CI/CD**: extend the existing GitHub Actions workflow (`.github/workflows/ci.yml`, currently lint +
   test) to build and push the image and deploy on merge to main.
 
-## What I'd do differently with more time
+## Roadmap
 
 - Replace some of the eval harness's literal substring checks with an LLM-as-judge rubric grader — the
   current harness is honest about checking specific hand-picked facts rather than general answer quality.
